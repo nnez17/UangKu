@@ -1,9 +1,12 @@
-﻿namespace UangKu.Models;
+﻿using Uangku.Models;
+
+namespace UangKu.Models;
 
 public sealed class Target
 {
     public int id { get; set; }
     public int walletId { get; set; }
+    public Wallet? wallet { get; set; }
     public string name { get; set; } = "";
     public decimal targetAmount { get; set; }
     public decimal currentAmount { get; set; } 

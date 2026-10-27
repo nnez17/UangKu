@@ -11,6 +11,6 @@ public sealed class Transactions
     public Target? target { get; set; }
     public string type { get; set; } = "income";
     public decimal amount { get; set; }
-    public DateTime transactionsAt { get; set; } = DateTime.UtcNow;
+    public DateTime transactionAt { get; set; } = DateTime.UtcNow;
     public string? note { get; set; }
 }

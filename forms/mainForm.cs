@@ -1,12 +1,9 @@
-using UangKu.Controls;
-using UangKu.Services;
-using UangKu.Models;
+using UangKu.Themes;
 
 namespace UangKu.Forms;
 
 public partial class MainForm : Form
 {
-    // ponytail: cache 11 pages to retain input; create lazily if startup cost grows.
     private UserControl[] pages = [];
     private Button[] menu = [];
     private Font activeMenuFont = null!;
@@ -19,7 +16,11 @@ public partial class MainForm : Form
             pageTarget, pageTambahTarget, pageDetailTarget, pageEditTarget, pageAmbilUang, pageProgress];
         menu = [btnDashboard, btnPemasukan, btnPengeluaran, btnSaldo, btnRiwayat, btnTarget, btnProgress];
         AppTheme.Apply(sidebar, menu);
-        foreach (var page in pages) AppTheme.Apply(page);
+        foreach (var page in pages)
+        {
+            CurrencyFormat.Apply(page);
+            AppTheme.Apply(page);
+        }
         Navigate(btnDashboard, pageDashboard);
         Navigate(btnPemasukan, pagePemasukan);
         Navigate(btnPengeluaran, pagePengeluaran);

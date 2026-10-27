@@ -1,4 +1,4 @@
-namespace UangKu.Controls;
+namespace UangKu.Themes;
 
 internal static class AppTheme
 {

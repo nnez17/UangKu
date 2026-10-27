@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Uangku.Data;
 using Uangku.Models;
-using UangKu.Data;
 using UangKu.Models;
 
 namespace UangKu.Services;
@@ -13,7 +12,7 @@ public sealed class DashboardSummary
     public decimal totalBalance { get; set; }
     public decimal totalIncome { get; set; }
     public decimal totalExpense { get; set; }
-    public Target? trimaryTarget { get; set; }
+    public Target? primaryTarget { get; set; }
 }
 
 public sealed class Service
@@ -42,20 +41,20 @@ public sealed class Service
         using var context = Db.CreateContext();
         return context.Transactions
             .AsNoTracking()
-            .Include(t => t.Wallet)
-            .Include(t => t.Target)
+            .Include(t => t.wallet)
+            .Include(t => t.target)
             .OrderByDescending(tr => tr.transactionAt)
             .ThenByDescending(tr => tr.id)
             .Take(limit)
-            .Select(tr => new TransactionRecord
+            .Select(tr => new TransactionsRecord
             {
-                Id = tr.id,
-                TransactionAt = tr.transactionAt.ToLocalTime(),
-                Type = tr.type,
-                Amount = tr.amount,
-                WalletName = tr.Wallet != null ? tr.Wallet.name : "",
-                TargetName = tr.Target != null ? tr.Target.name : null,
-                Note = tr.note
+                id = tr.id,
+                transactionAt = tr.transactionAt.ToLocalTime(),
+                type = tr.type,
+                amount = tr.amount,
+                walletName = tr.wallet != null ? tr.wallet.name : "",
+                targetName = tr.target != null ? tr.target.name : null,
+                note = tr.note
             })
             .ToList();
     }
@@ -63,10 +62,10 @@ public sealed class Service
     public List<TransactionsRecord> GetFilteredTransactions(string? jenis = null, string? dompet = null, string? periode = null, int limit = 250)
     {
         using var context = Db.CreateContext();
-        IQueryable<Transaction> query = context.Transactions
+        IQueryable<Transactions> query = context.Transactions
             .AsNoTracking()
-            .Include(t => t.Wallet)
-            .Include(t => t.Target);
+            .Include(t => t.wallet)
+            .Include(t => t.target);
 
         if (!string.IsNullOrWhiteSpace(jenis) && jenis != "Semua Jenis")
         {
@@ -107,15 +106,15 @@ public sealed class Service
             .OrderByDescending(t => t.transactionAt)
             .ThenByDescending(t => t.id)
             .Take(limit)
-            .Select(tr => new TransactionRecord
+            .Select(tr => new TransactionsRecord
             {
-                Id = tr.id,
-                TransactionAt = tr.transactionAt.ToLocalTime(),
-                Type = tr.type,
-                Amount = tr.amount,
-                WalletName = tr.Wallet != null ? tr.Wallet.name : "",
-                TargetName = tr.Target != null ? tr.Target.name : null,
-                Note = tr.note
+                id = tr.id,
+                transactionAt = tr.transactionAt.ToLocalTime(),
+                type = tr.type,
+                amount = tr.amount,
+                walletName = tr.wallet != null ? tr.wallet.name : "",
+                targetName = tr.target != null ? tr.target.name : null,
+                note = tr.note
             })
             .ToList();
     }
@@ -177,7 +176,7 @@ public sealed class Service
         if (type == "expense" && wallet.balance < amount)
             throw new InvalidOperationException("Saldo Dompet Transaksi tidak mencukupi.");
 
-        var transaction = new Transaction
+        var transaction = new Transactions
         {
             walletId = wallet.id,
             targetId = null,
@@ -203,7 +202,7 @@ public sealed class Service
         using var context = Db.CreateContext();
         using var tx = context.Database.BeginTransaction();
 
-        var transWallet = context.Wallets.FirstOrDefault(w => w.Type == "transaction")
+        var transWallet = context.Wallets.FirstOrDefault(w => w.type == "transaction")
             ?? throw new InvalidOperationException("Dompet Transaksi tidak ditemukan.");
 
         if (transWallet.balance < amount)
@@ -219,20 +218,20 @@ public sealed class Service
             throw new InvalidOperationException(
                 $"Setoran melebihi sisa target. Maksimal setoran: {(target.targetAmount - target.currentAmount):N2}.");
 
-        var targetWallet = context.Wallets.FirstOrDefault(w => w.id == target.WalletId && w.Type == "target")
+        var targetWallet = context.Wallets.FirstOrDefault(w => w.id == target.walletId && w.type == "target")
             ?? throw new InvalidOperationException("Wallet target pada target ini tidak valid.");
 
-        var transaction = new Transaction
+        var transaction = new Transactions
         {
             walletId = transWallet.id,
             targetId = target.id,
             type = "expense",
             amount = amount,
             transactionAt = DateTime.UtcNow,
-            note = NormalizeNote(string.IsNullOrWhiteSpace(note) ? $"Setoran target: {target.Name}" : note)
+            note = NormalizeNote(string.IsNullOrWhiteSpace(note) ? $"Setoran target: {target.name}" : note)
         };
 
-        context.transactions.Add(transaction);
+        context.Transactions.Add(transaction);
 
         transWallet.balance -= amount;
         targetWallet.balance += amount;
@@ -252,10 +251,10 @@ public sealed class Service
         using var context = Db.CreateContext();
         using var tx = context.Database.BeginTransaction();
 
-        var transWallet = context.Wallets.FirstOrDefault(w => w.Type == "transaction")
+        var transWallet = context.Wallets.FirstOrDefault(w => w.type == "transaction")
             ?? throw new InvalidOperationException("Dompet Transaksi tidak ditemukan.");
 
-        var target = context.Targets.FirstOrDefault(t => t.Id == targetId)
+        var target = context.Targets.FirstOrDefault(t => t.id == targetId)
             ?? throw new InvalidOperationException("Target tabungan tidak ditemukan.");
 
         if (target.currentAmount <= 0)
@@ -268,17 +267,17 @@ public sealed class Service
             throw new InvalidOperationException(
                 $"Nominal penarikan melebihi saldo tabungan target ({target.currentAmount:N0}).");
 
-        var targetWallet = context.Wallets.FirstOrDefault(w => w.Id == target.walletId && w.Type == "target")
+        var targetWallet = context.Wallets.FirstOrDefault(w => w.id == target.walletId && w.type == "target")
             ?? throw new InvalidOperationException("Wallet target pada target ini tidak valid.");
 
-        var transaction = new Transaction
+        var transaction = new Transactions
         {
             walletId = transWallet.id,
             targetId = target.id,
             type = "income",
             amount = amount,
             transactionAt = DateTime.UtcNow,
-            note = $"Penarikan tabungan: {target.Name}"
+            note = $"Penarikan tabungan: {target.name}"
         };
 
         context.Transactions.Add(transaction);
@@ -301,18 +300,18 @@ public sealed class Service
             throw new ArgumentOutOfRangeException(nameof(targetAmount), "Nominal target harus lebih besar dari nol.");
 
         using var context = Db.CreateContext();
-        var targetWallet = context.Wallets.FirstOrDefault(w => w.Type == "target")
+        var targetWallet = context.Wallets.FirstOrDefault(w => w.type == "target")
             ?? throw new InvalidOperationException("Dompet Tabungan tidak ditemukan.");
 
         var now = DateTime.UtcNow;
-        var target = new SavingsTarget
+        var target = new Target
         {
             walletId = targetWallet.id,
             name = name.Trim(),
             targetAmount = targetAmount,
             currentAmount = 0m,
             createdAt = now,
-            finishAt = finishAt.HasValue ? finishAt.Value.ToUniversalTime() : now.AddMonths(1),
+            finishedAt = finishAt.HasValue ? finishAt.Value.ToUniversalTime() : now.AddMonths(1),
             status = "active"
         };
 
@@ -328,14 +327,14 @@ public sealed class Service
             throw new ArgumentOutOfRangeException(nameof(targetAmount), "Nominal target harus lebih besar dari nol.");
 
         using var context = Db.CreateContext();
-        var target = context.Targets.FirstOrDefault(t => t.Id == targetId)
+        var target = context.Targets.FirstOrDefault(t => t.id == targetId)
             ?? throw new InvalidOperationException("Target tabungan tidak ditemukan.");
 
         target.name = name.Trim();
         target.targetAmount = targetAmount;
         if (finishAt.HasValue)
         {
-            target.finishAt = finishAt.Value.ToUniversalTime();
+            target.finishedAt = finishAt.Value.ToUniversalTime();
         }
         target.status = target.currentAmount >= targetAmount ? "complete" : "active";
 
