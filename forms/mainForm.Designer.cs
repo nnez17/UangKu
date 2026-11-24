@@ -74,9 +74,9 @@ partial class MainForm
         ((System.ComponentModel.ISupportInitialize)picBrand).BeginInit();
         contentHost.SuspendLayout();
         SuspendLayout();
-        //
+        // 
         // sidebar
-        //
+        // 
         sidebar.BackColor = Color.FromArgb(232, 243, 238);
         sidebar.Controls.Add(picBrand);
         sidebar.Controls.Add(lblBrand);
@@ -96,19 +96,20 @@ partial class MainForm
         sidebar.Name = "sidebar";
         sidebar.Size = new Size(222, 806);
         sidebar.TabIndex = 1;
-        //
+        // 
         // picBrand
-        //
+        // 
         picBrand.AccessibleName = "Logo UangKu";
-        picBrand.Image = (Image?)resources.GetObject("picBrand.Image");
+        picBrand.Image = (Image)resources.GetObject("picBrand.Image");
         picBrand.Location = new Point(14, 28);
         picBrand.Name = "picBrand";
         picBrand.Size = new Size(40, 40);
         picBrand.SizeMode = PictureBoxSizeMode.Zoom;
+        picBrand.TabIndex = 0;
         picBrand.TabStop = false;
-        //
+        // 
         // lblBrand
-        //
+        // 
         lblBrand.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
         lblBrand.ForeColor = Color.FromArgb(38, 73, 68);
         lblBrand.Location = new Point(54, 28);
@@ -117,9 +118,9 @@ partial class MainForm
         lblBrand.TabIndex = 0;
         lblBrand.Text = "UangKu";
         lblBrand.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // btnDashboard
-        //
+        // 
         btnDashboard.BackColor = Color.Transparent;
         btnDashboard.Cursor = Cursors.Hand;
         btnDashboard.FlatAppearance.BorderColor = Color.FromArgb(229, 237, 232);
@@ -136,9 +137,9 @@ partial class MainForm
         btnDashboard.TextAlign = ContentAlignment.MiddleLeft;
         btnDashboard.UseMnemonic = false;
         btnDashboard.UseVisualStyleBackColor = false;
-        //
+        // 
         // lblTransaksi
-        //
+        // 
         lblTransaksi.Font = new Font("Segoe UI", 8F);
         lblTransaksi.ForeColor = Color.FromArgb(112, 139, 132);
         lblTransaksi.Location = new Point(14, 132);
@@ -147,9 +148,9 @@ partial class MainForm
         lblTransaksi.TabIndex = 2;
         lblTransaksi.Text = "TRANSAKSI";
         lblTransaksi.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // btnPemasukan
-        //
+        // 
         btnPemasukan.BackColor = Color.FromArgb(232, 243, 238);
         btnPemasukan.Cursor = Cursors.Hand;
         btnPemasukan.FlatAppearance.BorderColor = Color.FromArgb(229, 237, 232);
@@ -165,9 +166,9 @@ partial class MainForm
         btnPemasukan.Text = "Pemasukan";
         btnPemasukan.TextAlign = ContentAlignment.MiddleLeft;
         btnPemasukan.UseVisualStyleBackColor = false;
-        //
+        // 
         // btnPengeluaran
-        //
+        // 
         btnPengeluaran.BackColor = Color.FromArgb(232, 243, 238);
         btnPengeluaran.Cursor = Cursors.Hand;
         btnPengeluaran.FlatAppearance.BorderColor = Color.FromArgb(229, 237, 232);
@@ -183,9 +184,9 @@ partial class MainForm
         btnPengeluaran.Text = "Pengeluaran";
         btnPengeluaran.TextAlign = ContentAlignment.MiddleLeft;
         btnPengeluaran.UseVisualStyleBackColor = false;
-        //
+        // 
         // lblInformasi
-        //
+        // 
         lblInformasi.Font = new Font("Segoe UI", 8F);
         lblInformasi.ForeColor = Color.FromArgb(112, 139, 132);
         lblInformasi.Location = new Point(14, 268);
@@ -194,9 +195,9 @@ partial class MainForm
         lblInformasi.TabIndex = 5;
         lblInformasi.Text = "INFORMASI";
         lblInformasi.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // btnSaldo
-        //
+        // 
         btnSaldo.BackColor = Color.FromArgb(232, 243, 238);
         btnSaldo.Cursor = Cursors.Hand;
         btnSaldo.FlatAppearance.BorderColor = Color.FromArgb(229, 237, 232);
@@ -212,9 +213,9 @@ partial class MainForm
         btnSaldo.Text = "Saldo";
         btnSaldo.TextAlign = ContentAlignment.MiddleLeft;
         btnSaldo.UseVisualStyleBackColor = false;
-        //
+        // 
         // btnRiwayat
-        //
+        // 
         btnRiwayat.BackColor = Color.FromArgb(232, 243, 238);
         btnRiwayat.Cursor = Cursors.Hand;
         btnRiwayat.FlatAppearance.BorderColor = Color.FromArgb(229, 237, 232);
@@ -230,9 +231,9 @@ partial class MainForm
         btnRiwayat.Text = "Riwayat";
         btnRiwayat.TextAlign = ContentAlignment.MiddleLeft;
         btnRiwayat.UseVisualStyleBackColor = false;
-        //
+        // 
         // lblTarget
-        //
+        // 
         lblTarget.Font = new Font("Segoe UI", 8F);
         lblTarget.ForeColor = Color.FromArgb(112, 139, 132);
         lblTarget.Location = new Point(14, 404);
@@ -241,9 +242,9 @@ partial class MainForm
         lblTarget.TabIndex = 8;
         lblTarget.Text = "TARGET";
         lblTarget.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // btnTarget
-        //
+        // 
         btnTarget.BackColor = Color.FromArgb(232, 243, 238);
         btnTarget.Cursor = Cursors.Hand;
         btnTarget.FlatAppearance.BorderColor = Color.FromArgb(229, 237, 232);
@@ -259,9 +260,9 @@ partial class MainForm
         btnTarget.Text = "Target";
         btnTarget.TextAlign = ContentAlignment.MiddleLeft;
         btnTarget.UseVisualStyleBackColor = false;
-        //
+        // 
         // btnProgress
-        //
+        // 
         btnProgress.BackColor = Color.FromArgb(232, 243, 238);
         btnProgress.Cursor = Cursors.Hand;
         btnProgress.FlatAppearance.BorderColor = Color.FromArgb(229, 237, 232);
@@ -277,9 +278,9 @@ partial class MainForm
         btnProgress.Text = "Progress";
         btnProgress.TextAlign = ContentAlignment.MiddleLeft;
         btnProgress.UseVisualStyleBackColor = false;
-        //
+        // 
         // contentHost
-        //
+        // 
         contentHost.BackColor = Color.White;
         contentHost.Controls.Add(pageDashboard);
         contentHost.Dock = DockStyle.Fill;
@@ -287,31 +288,130 @@ partial class MainForm
         contentHost.Name = "contentHost";
         contentHost.Size = new Size(880, 806);
         contentHost.TabIndex = 0;
+        // 
+        // pageDashboard
+        // 
+        pageDashboard.AutoScroll = true;
+        pageDashboard.BackColor = Color.White;
         pageDashboard.Dock = DockStyle.Fill;
+        pageDashboard.Font = new Font("Segoe UI", 9F);
+        pageDashboard.Location = new Point(0, 0);
         pageDashboard.Name = "pageDashboard";
+        pageDashboard.Size = new Size(880, 806);
+        pageDashboard.TabIndex = 0;
+        // 
+        // pagePemasukan
+        // 
+        pagePemasukan.AutoScroll = true;
+        pagePemasukan.BackColor = Color.White;
         pagePemasukan.Dock = DockStyle.Fill;
+        pagePemasukan.Font = new Font("Segoe UI", 9F);
+        pagePemasukan.Location = new Point(0, 0);
         pagePemasukan.Name = "pagePemasukan";
+        pagePemasukan.Size = new Size(880, 806);
+        pagePemasukan.TabIndex = 0;
+        // 
+        // pagePengeluaran
+        // 
+        pagePengeluaran.AutoScroll = true;
+        pagePengeluaran.BackColor = Color.White;
         pagePengeluaran.Dock = DockStyle.Fill;
+        pagePengeluaran.Font = new Font("Segoe UI", 9F);
+        pagePengeluaran.Location = new Point(0, 0);
         pagePengeluaran.Name = "pagePengeluaran";
+        pagePengeluaran.Size = new Size(880, 806);
+        pagePengeluaran.TabIndex = 0;
+        // 
+        // pageSaldo
+        // 
+        pageSaldo.AutoScroll = true;
+        pageSaldo.BackColor = Color.White;
         pageSaldo.Dock = DockStyle.Fill;
+        pageSaldo.Font = new Font("Segoe UI", 9F);
+        pageSaldo.Location = new Point(0, 0);
         pageSaldo.Name = "pageSaldo";
+        pageSaldo.Size = new Size(880, 806);
+        pageSaldo.TabIndex = 0;
+        // 
+        // pageRiwayat
+        // 
+        pageRiwayat.AutoScroll = true;
+        pageRiwayat.BackColor = Color.White;
         pageRiwayat.Dock = DockStyle.Fill;
+        pageRiwayat.Font = new Font("Segoe UI", 9F);
+        pageRiwayat.Location = new Point(0, 0);
         pageRiwayat.Name = "pageRiwayat";
+        pageRiwayat.Size = new Size(880, 806);
+        pageRiwayat.TabIndex = 0;
+        // 
+        // pageTarget
+        // 
+        pageTarget.AutoScroll = true;
+        pageTarget.BackColor = Color.White;
         pageTarget.Dock = DockStyle.Fill;
+        pageTarget.Font = new Font("Segoe UI", 9F);
+        pageTarget.Location = new Point(0, 0);
         pageTarget.Name = "pageTarget";
+        pageTarget.Size = new Size(880, 806);
+        pageTarget.TabIndex = 0;
+        // 
+        // pageTambahTarget
+        // 
+        pageTambahTarget.AutoScroll = true;
+        pageTambahTarget.BackColor = Color.White;
         pageTambahTarget.Dock = DockStyle.Fill;
+        pageTambahTarget.Font = new Font("Segoe UI", 9F);
+        pageTambahTarget.Location = new Point(0, 0);
         pageTambahTarget.Name = "pageTambahTarget";
+        pageTambahTarget.Size = new Size(880, 806);
+        pageTambahTarget.TabIndex = 0;
+        // 
+        // pageDetailTarget
+        // 
+        pageDetailTarget.AutoScroll = true;
+        pageDetailTarget.BackColor = Color.White;
         pageDetailTarget.Dock = DockStyle.Fill;
+        pageDetailTarget.Font = new Font("Segoe UI", 9F);
+        pageDetailTarget.Location = new Point(0, 0);
         pageDetailTarget.Name = "pageDetailTarget";
+        pageDetailTarget.Size = new Size(880, 806);
+        pageDetailTarget.TabIndex = 0;
+        // 
+        // pageEditTarget
+        // 
+        pageEditTarget.AutoScroll = true;
+        pageEditTarget.BackColor = Color.White;
         pageEditTarget.Dock = DockStyle.Fill;
+        pageEditTarget.Font = new Font("Segoe UI", 9F);
+        pageEditTarget.Location = new Point(0, 0);
         pageEditTarget.Name = "pageEditTarget";
+        pageEditTarget.Size = new Size(880, 806);
+        pageEditTarget.TabIndex = 0;
+        // 
+        // pageAmbilUang
+        // 
+        pageAmbilUang.AutoScroll = true;
+        pageAmbilUang.BackColor = Color.White;
         pageAmbilUang.Dock = DockStyle.Fill;
+        pageAmbilUang.Font = new Font("Segoe UI", 9F);
+        pageAmbilUang.Location = new Point(0, 0);
         pageAmbilUang.Name = "pageAmbilUang";
+        pageAmbilUang.Size = new Size(880, 806);
+        pageAmbilUang.TabIndex = 0;
+        // 
+        // pageProgress
+        // 
+        pageProgress.AutoScroll = true;
+        pageProgress.BackColor = Color.White;
         pageProgress.Dock = DockStyle.Fill;
+        pageProgress.Font = new Font("Segoe UI", 9F);
+        pageProgress.Location = new Point(0, 0);
         pageProgress.Name = "pageProgress";
-        //
+        pageProgress.Size = new Size(880, 806);
+        pageProgress.TabIndex = 0;
+        // 
         // MainForm
-        //
+        // 
         AutoScaleDimensions = new SizeF(8F, 19F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.White;
@@ -320,7 +420,7 @@ partial class MainForm
         Controls.Add(sidebar);
         Font = new Font("Segoe UI", 9F);
         FormBorderStyle = FormBorderStyle.FixedSingle;
-        Icon = (Icon?)resources.GetObject("$this.Icon");
+        Icon = (Icon)resources.GetObject("$this.Icon");
         MaximizeBox = false;
         Name = "MainForm";
         StartPosition = FormStartPosition.CenterScreen;

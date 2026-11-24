@@ -1,6 +1,4 @@
-﻿using UangKu.Models;
-
-namespace Uangku.Models;
+namespace UangKu.Models;
 
 public sealed class Wallet
 {
@@ -13,4 +11,4 @@ public sealed class Wallet
     public ICollection<Transactions> Transactions { get; set; } = new List<Transactions>();
 
     public override string ToString() => $"{name} — {balance:N0}";
-};
+}

@@ -18,6 +18,13 @@ internal static class CurrencyFormat
         }
     }
 
+    public static decimal Parse(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return 0m;
+        var digits = new string(text.Where(char.IsDigit).ToArray());
+        return decimal.TryParse(digits, out var val) ? val : 0m;
+    }
+
     private static bool IsCurrencyTextBox(TextBox textBox)
     {
         return textBox.PlaceholderText.Contains("Rp") || 

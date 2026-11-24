@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Uangku.Models;
 using UangKu.Models;
 
-namespace Uangku.Data;
+namespace UangKu.Data;
 
 public class AppDbContext : DbContext
 {
@@ -25,7 +24,12 @@ public class AppDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql(Db.ConnectionString);
+            optionsBuilder.UseNpgsql(Db.DataSource, o =>
+            {
+                o.MapEnum<WalletType>("wallet_type");
+                o.MapEnum<TransactionType>("transaction_type");
+                o.MapEnum<TargetStatus>("target_status");
+            });
         }
     }
 
@@ -46,7 +50,9 @@ public class AppDbContext : DbContext
             entity.Property(e => e.name).HasColumnName("name").HasMaxLength(128).IsRequired();
             entity.Property(e => e.type)
                 .HasColumnName("type")
-                .HasConversion<WalletType>()
+                .HasConversion(
+                    v => Enum.Parse<WalletType>(v, true),
+                    v => v.ToString().ToLowerInvariant())
                 .IsRequired();
             entity.Property(e => e.balance)
                 .HasColumnName("balance")
@@ -60,28 +66,26 @@ public class AppDbContext : DbContext
             entity.ToTable("target");
             entity.HasKey(e => e.id);
             entity.Property(e => e.id).HasColumnName("id");
-            entity.Property(e => e.walletId).HasColumnName("walletId").IsRequired();
+            entity.Property(e => e.walletId).HasColumnName("wallet_id").IsRequired();
             entity.Property(e => e.name).HasColumnName("name").HasMaxLength(128).IsRequired();
             entity.Property(e => e.targetAmount)
-                .HasColumnName("targetAmount")
+                .HasColumnName("target_amount")
                 .HasColumnType("decimal")
                 .IsRequired();
             entity.Property(e => e.currentAmount)
-                .HasColumnName("currentAmount")
+                .HasColumnName("current_amount")
                 .HasColumnType("decimal")
                 .HasDefaultValue(0m);
             entity.Property(e => e.createdAt)
-                .HasColumnName("createdAt")
+                .HasColumnName("created_at")
                 .HasColumnType("timestamptz")
                 .HasDefaultValueSql("NOW()");
-            entity.Property(e => e.finishedAt)
-                .HasColumnName("finishAt")
-                .HasColumnType("timestamptz")
-                .HasDefaultValueSql("NOW()")
-                .IsRequired();
+            entity.Ignore(e => e.finishedAt);
             entity.Property(e => e.status)
                 .HasColumnName("status")
-                .HasConversion<TargetStatus>()
+                .HasConversion(
+                    v => Enum.Parse<TargetStatus>(v, true),
+                    v => v.ToString().ToLowerInvariant())
                 .HasDefaultValue("active")
                 .IsRequired();
 
@@ -97,21 +101,23 @@ public class AppDbContext : DbContext
         //Transaction
         modelBuilder.Entity<Transactions>(entity =>
         {
-            entity.ToTable("transaction");
+            entity.ToTable("transactions");
             entity.HasKey(e => e.id);
             entity.Property(e => e.id).HasColumnName("id");
-            entity.Property(e => e.walletId).HasColumnName("walletId").IsRequired();
-            entity.Property(e => e.targetId).HasColumnName("targetId");
+            entity.Property(e => e.walletId).HasColumnName("wallet_id").IsRequired();
+            entity.Property(e => e.targetId).HasColumnName("target_id");
             entity.Property(e => e.type)
                 .HasColumnName("type")
-                .HasConversion<TransactionType>()
+                .HasConversion(
+                    v => Enum.Parse<TransactionType>(v, true),
+                    v => v.ToString().ToLowerInvariant())
                 .IsRequired();
             entity.Property(e => e.amount)
                 .HasColumnName("amount")
                 .HasColumnType("decimal")
                 .IsRequired();
             entity.Property(e => e.transactionAt)
-                .HasColumnName("transactionAt")
+                .HasColumnName("transaction_at")
                 .HasColumnType("timestamptz")
                 .HasDefaultValueSql("NOW()");
             entity.Property(e => e.note).HasColumnName("note");

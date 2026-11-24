@@ -1,6 +1,6 @@
-﻿using NpgsqlTypes;
+using NpgsqlTypes;
 
-namespace Uangku.Models;
+namespace UangKu.Models;
 
 public enum WalletType
 {
@@ -15,13 +15,13 @@ public enum TransactionType
     [PgName("income")]
     Income,
     [PgName("expense")]
-    Expanse
+    Expense
 }
 
 public enum TargetStatus
 {
     [PgName("active")]
     Active,
-    [PgName("complate")]
-    Complate
+    [PgName("complete")]
+    Complete
 }

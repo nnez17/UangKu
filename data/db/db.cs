@@ -1,37 +1,31 @@
-﻿using Npgsql;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using dotenv.net;
-using Uangku.Models;
+using UangKu.Models;
 
-namespace Uangku.Data;
+namespace UangKu.Data;
 
 public static class Db
 {
-    private static string _connectionString = string.Empty;
+    private static readonly Lazy<string> _connectionString = new(LoadConnectionString);
+    private static readonly Lazy<NpgsqlDataSource> _dataSource = new(BuildDataSource);
 
-    public static string ConnectionString
-    {
-        get
-        {
-            if (string.IsNullOrWhiteSpace(_connectionString))
-            {
-                _connectionString = LoadConnectionString();
-            }
-            return _connectionString;
-        }
-    }
-    public static AppDbContext CreateContext()
-    {
-        return new AppDbContext();
-    }
+    public static string ConnectionString => _connectionString.Value;
+    public static NpgsqlDataSource DataSource => _dataSource.Value;
+
+    public static AppDbContext CreateContext() => new();
 
     public static void Initialize()
+        => InitializeAsync().GetAwaiter().GetResult();
+
+    public static async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        _connectionString = LoadConnectionString();
+        await using var context = CreateContext();
+        await context.Database.EnsureCreatedAsync(cancellationToken);
 
-        using var context = CreateContext();
-        context.Database.EnsureCreated();
+        var hasChanges = false;
 
-        if (!context.Wallets.Any(w => w.type == "transaction"))
+        if (!await context.Wallets.AnyAsync(w => w.type == "transaction", cancellationToken))
         {
             context.Wallets.Add(new Wallet
             {
@@ -39,9 +33,10 @@ public static class Db
                 type = "transaction",
                 balance = 0m
             });
+            hasChanges = true;
         }
 
-        if (!context.Wallets.Any(w => w.type == "target"))
+        if (!await context.Wallets.AnyAsync(w => w.type == "target", cancellationToken))
         {
             context.Wallets.Add(new Wallet
             {
@@ -49,9 +44,22 @@ public static class Db
                 type = "target",
                 balance = 0m
             });
+            hasChanges = true;
         }
 
-        context.SaveChanges();
+        if (hasChanges)
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private static NpgsqlDataSource BuildDataSource()
+    {
+        var builder = new NpgsqlDataSourceBuilder(ConnectionString);
+        builder.MapEnum<WalletType>("wallet_type");
+        builder.MapEnum<TransactionType>("transaction_type");
+        builder.MapEnum<TargetStatus>("target_status");
+        return builder.Build();
     }
 
     private static void ParseEnvFileManually(string envPath)
@@ -68,14 +76,14 @@ public static class Db
                 if (separatorIndex <= 0)
                     continue;
 
-                var key = line.Substring(0, separatorIndex).Trim();
-                var value = line.Substring(separatorIndex + 1).Trim();
+                var key = line[..separatorIndex].Trim();
+                var value = line[(separatorIndex + 1)..].Trim();
 
                 if (value.Length >= 2 &&
                     ((value.StartsWith('"') && value.EndsWith('"')) ||
                      (value.StartsWith('\'') && value.EndsWith('\''))))
                 {
-                    value = value.Substring(1, value.Length - 2);
+                    value = value[1..^1];
                 }
 
                 if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(key)))
@@ -92,7 +100,7 @@ public static class Db
 
     private static void LoadEnvFile()
     {
-        var cadidates = new List<string>
+        var candidates = new List<string>
         {
             Path.Combine(AppContext.BaseDirectory, ".env"),
             Path.Combine(Directory.GetCurrentDirectory(), ".env")
@@ -101,16 +109,16 @@ public static class Db
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null)
         {
-            cadidates.Add(Path.Combine(dir.FullName, ".env"));
+            candidates.Add(Path.Combine(dir.FullName, ".env"));
             dir = dir.Parent;
         }
 
-        var envPath = cadidates.FirstOrDefault(File.Exists);
+        var envPath = candidates.FirstOrDefault(File.Exists);
 
         if (envPath != null)
         {
             DotEnv.Load(new DotEnvOptions(
-                envFilePaths: new[] { envPath },
+                envFilePaths: [envPath],
                 ignoreExceptions: true
             ));
 
@@ -126,7 +134,6 @@ public static class Db
         }
     }
 
-
     private static string LoadConnectionString()
     {
         LoadEnvFile();
@@ -140,10 +147,8 @@ public static class Db
         var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
         var portStr = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
         var db = Environment.GetEnvironmentVariable("DB_NAME")
-                 ?? Environment.GetEnvironmentVariable("DB_DATABASE")
                  ?? "postgres";
         var user = Environment.GetEnvironmentVariable("DB_USER")
-                  ?? Environment.GetEnvironmentVariable("DB_USERNAME")
                   ?? "postgres";
         var pass = Environment.GetEnvironmentVariable("DB_PASSWORD");
 

@@ -1,11 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Uangku.Data;
-using Uangku.Models;
+using Microsoft.EntityFrameworkCore;
+using UangKu.Data;
 using UangKu.Models;
 
 namespace UangKu.Services;
 
-public sealed class DashboardSummary
+public sealed class DashboardStats
 {
     public decimal transactionBalance { get; set; }
     public decimal targetBalance { get; set; }
@@ -15,57 +14,79 @@ public sealed class DashboardSummary
     public Target? primaryTarget { get; set; }
 }
 
-public sealed class Service
+public sealed class Service(Func<AppDbContext>? contextFactory = null)
 {
-    public List<Wallet> GetWallets()
+    private readonly Func<AppDbContext> _contextFactory = contextFactory ?? Db.CreateContext;
+
+    private AppDbContext CreateContext() => _contextFactory();
+
+    public async Task<List<Wallet>> GetWalletsAsync(CancellationToken cancellationToken = default)
     {
-        using var context = Db.CreateContext();
-        return context.Wallets
+        await using var context = CreateContext();
+        return await context.Wallets
             .AsNoTracking()
             .OrderBy(w => w.id)
-            .ToList();
+            .ToListAsync(cancellationToken);
     }
 
-    public List<Target> GetTargets()
+    public async Task<List<Target>> GetTargetsAsync(CancellationToken cancellationToken = default)
     {
-        using var context = Db.CreateContext();
-        return context.Targets
+        await using var context = CreateContext();
+        return await context.Targets
             .AsNoTracking()
             .OrderByDescending(t => t.createdAt)
             .ThenByDescending(t => t.id)
-            .ToList();
+            .ToListAsync(cancellationToken);
     }
 
-    public List<TransactionsRecord> GetTransactions(int limit = 250)
+    public async Task<List<Target>> GetActiveTargetsAsync(CancellationToken cancellationToken = default)
     {
-        using var context = Db.CreateContext();
-        return context.Transactions
+        await using var context = CreateContext();
+        return await context.Targets
             .AsNoTracking()
-            .Include(t => t.wallet)
-            .Include(t => t.target)
+            .Where(t => t.status != "complete" && t.currentAmount < t.targetAmount)
+            .OrderByDescending(t => t.createdAt)
+            .ThenByDescending(t => t.id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<TransactionsRecord>> GetTransactionsAsync(int limit = 250, CancellationToken cancellationToken = default)
+    {
+        await using var context = CreateContext();
+        var records = await context.Transactions
+            .AsNoTracking()
             .OrderByDescending(tr => tr.transactionAt)
             .ThenByDescending(tr => tr.id)
             .Take(limit)
             .Select(tr => new TransactionsRecord
             {
                 id = tr.id,
-                transactionAt = tr.transactionAt.ToLocalTime(),
+                transactionAt = tr.transactionAt,
                 type = tr.type,
                 amount = tr.amount,
                 walletName = tr.wallet != null ? tr.wallet.name : "",
                 targetName = tr.target != null ? tr.target.name : null,
                 note = tr.note
             })
-            .ToList();
+            .ToListAsync(cancellationToken);
+
+        foreach (var record in records)
+        {
+            record.transactionAt = record.transactionAt.ToLocalTime();
+        }
+
+        return records;
     }
 
-    public List<TransactionsRecord> GetFilteredTransactions(string? jenis = null, string? dompet = null, string? periode = null, int limit = 250)
+    public async Task<List<TransactionsRecord>> GetFilteredTransactionsAsync(
+        string? jenis = null,
+        string? dompet = null,
+        string? periode = null,
+        int limit = 250,
+        CancellationToken cancellationToken = default)
     {
-        using var context = Db.CreateContext();
-        IQueryable<Transactions> query = context.Transactions
-            .AsNoTracking()
-            .Include(t => t.wallet)
-            .Include(t => t.target);
+        await using var context = CreateContext();
+        IQueryable<Transactions> query = context.Transactions.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(jenis) && jenis != "Semua Jenis")
         {
@@ -85,92 +106,143 @@ public sealed class Service
 
         if (!string.IsNullOrWhiteSpace(periode) && periode != "Semua")
         {
-            if (periode.Equals("Minggu", StringComparison.OrdinalIgnoreCase))
+            DateTime? cutoff = periode.ToLowerInvariant() switch
             {
-                var cutoff = DateTime.UtcNow.AddDays(-7);
-                query = query.Where(t => t.transactionAt >= cutoff);
-            }
-            else if (periode.Equals("Bulan", StringComparison.OrdinalIgnoreCase))
+                "minggu" => DateTime.UtcNow.AddDays(-7),
+                "bulan" => DateTime.UtcNow.AddDays(-30),
+                "tahun" => DateTime.UtcNow.AddYears(-1),
+                _ => null
+            };
+
+            if (cutoff.HasValue)
             {
-                var cutoff = DateTime.UtcNow.AddDays(-30);
-                query = query.Where(t => t.transactionAt >= cutoff);
-            }
-            else if (periode.Equals("Tahun", StringComparison.OrdinalIgnoreCase))
-            {
-                var cutoff = DateTime.UtcNow.AddYears(-1);
-                query = query.Where(t => t.transactionAt >= cutoff);
+                query = query.Where(t => t.transactionAt >= cutoff.Value);
             }
         }
 
-        return query
+        var records = await query
             .OrderByDescending(t => t.transactionAt)
             .ThenByDescending(t => t.id)
             .Take(limit)
             .Select(tr => new TransactionsRecord
             {
                 id = tr.id,
-                transactionAt = tr.transactionAt.ToLocalTime(),
+                transactionAt = tr.transactionAt,
                 type = tr.type,
                 amount = tr.amount,
                 walletName = tr.wallet != null ? tr.wallet.name : "",
                 targetName = tr.target != null ? tr.target.name : null,
                 note = tr.note
             })
-            .ToList();
+            .ToListAsync(cancellationToken);
+
+        foreach (var record in records)
+        {
+            record.transactionAt = record.transactionAt.ToLocalTime();
+        }
+
+        return records;
     }
 
-    public DashboardSummary GetSummary()
+    public async Task<DashboardStats> GetStatsAsync(CancellationToken cancellationToken = default)
     {
-        using var context = Db.CreateContext();
-        var wallets = context.Wallets.AsNoTracking().ToList();
-        var targets = context.Targets
+        await using var context = CreateContext();
+
+        var wallets = await context.Wallets
             .AsNoTracking()
-            .OrderByDescending(t => t.createdAt)
+            .ToListAsync(cancellationToken);
+
+        var primaryTarget = await context.Targets
+            .AsNoTracking()
+            .OrderByDescending(t => t.status == "active")
+            .ThenByDescending(t => t.createdAt)
             .ThenByDescending(t => t.id)
-            .ToList();
+            .FirstOrDefaultAsync(cancellationToken);
 
-        var transactionWallet = wallets.FirstOrDefault(w => w.type == "transaction");
-        var targetWallet = wallets.FirstOrDefault(w => w.type == "target");
+        var totals = await context.Transactions
+            .AsNoTracking()
+            .GroupBy(t => t.type)
+            .Select(g => new { Type = g.Key, Total = g.Sum(x => x.amount) })
+            .ToListAsync(cancellationToken);
 
-        var transactionBalance = transactionWallet?.balance ?? 0m;
-        var targetBalance = targetWallet?.balance ?? 0m;
-        var totalBalance = transactionBalance + targetBalance;
+        var transactionBalance = wallets.FirstOrDefault(w => w.type == "transaction")?.balance ?? 0m;
+        var targetBalance = wallets.FirstOrDefault(w => w.type == "target")?.balance ?? 0m;
 
-        var totalIncome = context.Transactions
-            .Where(t => t.type == "income")
-            .Sum(t => (decimal?)t.amount) ?? 0m;
+        var totalIncome = totals.FirstOrDefault(t => t.Type == "income")?.Total ?? 0m;
+        var totalExpense = totals.FirstOrDefault(t => t.Type == "expense")?.Total ?? 0m;
 
-        var totalExpense = context.Transactions
-            .Where(t => t.type == "expense")
-            .Sum(t => (decimal?)t.amount) ?? 0m;
-
-        var primaryTarget = targets.FirstOrDefault(t => t.status == "active") ?? targets.FirstOrDefault();
-
-        return new DashboardSummary
+        return new DashboardStats
         {
             transactionBalance = transactionBalance,
             targetBalance = targetBalance,
-            totalBalance = totalBalance,
+            totalBalance = transactionBalance + targetBalance,
             totalIncome = totalIncome,
             totalExpense = totalExpense,
             primaryTarget = primaryTarget
         };
     }
 
-    public void AddIncome(decimal amount, string? note)
-        => AddOrdinaryTransaction("income", amount, note);
-
-    public void AddExpense(decimal amount, string? note)
-        => AddOrdinaryTransaction("expense", amount, note);
-
-    private static void AddOrdinaryTransaction(string type, decimal amount, string? note)
+    public async Task AddIncomeAsync(decimal amount, string? note, int? targetId = null, CancellationToken cancellationToken = default)
     {
         ValidateAmount(amount);
 
-        using var context = Db.CreateContext();
-        using var tx = context.Database.BeginTransaction();
+        if (!targetId.HasValue)
+        {
+            await AddOrdinaryTransactionAsync("income", amount, note, cancellationToken);
+            return;
+        }
 
-        var wallet = context.Wallets.FirstOrDefault(w => w.type == "transaction")
+        await using var context = CreateContext();
+        await using var tx = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        var target = await context.Targets.FirstOrDefaultAsync(t => t.id == targetId.Value, cancellationToken)
+            ?? throw new InvalidOperationException("Target tabungan tidak ditemukan.");
+
+        if (target.status == "complete" || target.currentAmount >= target.targetAmount)
+            throw new InvalidOperationException("Target ini sudah selesai.");
+
+        var remaining = target.targetAmount - target.currentAmount;
+        if (amount > remaining)
+            throw new InvalidOperationException(
+                $"Pemasukan melebihi sisa target. Maksimal: Rp {remaining:N0}.");
+
+        var targetWallet = await context.Wallets.FirstOrDefaultAsync(w => w.id == target.walletId && w.type == "target", cancellationToken)
+            ?? await context.Wallets.FirstOrDefaultAsync(w => w.type == "target", cancellationToken)
+            ?? throw new InvalidOperationException("Dompet Target tidak ditemukan.");
+
+        var transaction = new Transactions
+        {
+            walletId = targetWallet.id,
+            targetId = target.id,
+            type = "income",
+            amount = amount,
+            transactionAt = DateTime.UtcNow,
+            note = NormalizeNote(string.IsNullOrWhiteSpace(note) ? $"Pemasukan target: {target.name}" : note)
+        };
+
+        context.Transactions.Add(transaction);
+        targetWallet.balance += amount;
+        target.currentAmount += amount;
+        if (target.currentAmount >= target.targetAmount)
+        {
+            target.status = "complete";
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+        await tx.CommitAsync(cancellationToken);
+    }
+
+    public Task AddExpenseAsync(decimal amount, string? note, CancellationToken cancellationToken = default)
+        => AddOrdinaryTransactionAsync("expense", amount, note, cancellationToken);
+
+    private async Task AddOrdinaryTransactionAsync(string type, decimal amount, string? note, CancellationToken cancellationToken)
+    {
+        ValidateAmount(amount);
+
+        await using var context = CreateContext();
+        await using var tx = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        var wallet = await context.Wallets.FirstOrDefaultAsync(w => w.type == "transaction", cancellationToken)
             ?? throw new InvalidOperationException("Dompet Transaksi tidak ditemukan.");
 
         if (type == "expense" && wallet.balance < amount)
@@ -187,38 +259,37 @@ public sealed class Service
         };
 
         context.Transactions.Add(transaction);
+        wallet.balance += type == "income" ? amount : -amount;
 
-        var delta = type == "income" ? amount : -amount;
-        wallet.balance += delta;
-
-        context.SaveChanges();
-        tx.Commit();
+        await context.SaveChangesAsync(cancellationToken);
+        await tx.CommitAsync(cancellationToken);
     }
 
-    public void DepositToTarget(int targetId, decimal amount, string? note)
+    public async Task DepositToTargetAsync(int targetId, decimal amount, string? note, CancellationToken cancellationToken = default)
     {
         ValidateAmount(amount);
 
-        using var context = Db.CreateContext();
-        using var tx = context.Database.BeginTransaction();
+        await using var context = CreateContext();
+        await using var tx = await context.Database.BeginTransactionAsync(cancellationToken);
 
-        var transWallet = context.Wallets.FirstOrDefault(w => w.type == "transaction")
+        var transWallet = await context.Wallets.FirstOrDefaultAsync(w => w.type == "transaction", cancellationToken)
             ?? throw new InvalidOperationException("Dompet Transaksi tidak ditemukan.");
 
         if (transWallet.balance < amount)
             throw new InvalidOperationException("Saldo Dompet Transaksi tidak mencukupi untuk setoran.");
 
-        var target = context.Targets.FirstOrDefault(t => t.id == targetId)
+        var target = await context.Targets.FirstOrDefaultAsync(t => t.id == targetId, cancellationToken)
             ?? throw new InvalidOperationException("Target tabungan tidak ditemukan.");
 
         if (target.status == "complete" || target.currentAmount >= target.targetAmount)
             throw new InvalidOperationException("Target ini sudah selesai.");
 
-        if (amount > target.targetAmount - target.currentAmount)
+        var remaining = target.targetAmount - target.currentAmount;
+        if (amount > remaining)
             throw new InvalidOperationException(
-                $"Setoran melebihi sisa target. Maksimal setoran: {(target.targetAmount - target.currentAmount):N2}.");
+                $"Setoran melebihi sisa target. Maksimal setoran: Rp {remaining:N0}.");
 
-        var targetWallet = context.Wallets.FirstOrDefault(w => w.id == target.walletId && w.type == "target")
+        var targetWallet = await context.Wallets.FirstOrDefaultAsync(w => w.id == target.walletId && w.type == "target", cancellationToken)
             ?? throw new InvalidOperationException("Wallet target pada target ini tidak valid.");
 
         var transaction = new Transactions
@@ -242,19 +313,19 @@ public sealed class Service
             target.status = "complete";
         }
 
-        context.SaveChanges();
-        tx.Commit();
+        await context.SaveChangesAsync(cancellationToken);
+        await tx.CommitAsync(cancellationToken);
     }
 
-    public void WithdrawTarget(int targetId, decimal? amountToWithdraw = null)
+    public async Task WithdrawTargetAsync(int targetId, decimal? amountToWithdraw = null, CancellationToken cancellationToken = default)
     {
-        using var context = Db.CreateContext();
-        using var tx = context.Database.BeginTransaction();
+        await using var context = CreateContext();
+        await using var tx = await context.Database.BeginTransactionAsync(cancellationToken);
 
-        var transWallet = context.Wallets.FirstOrDefault(w => w.type == "transaction")
+        var transWallet = await context.Wallets.FirstOrDefaultAsync(w => w.type == "transaction", cancellationToken)
             ?? throw new InvalidOperationException("Dompet Transaksi tidak ditemukan.");
 
-        var target = context.Targets.FirstOrDefault(t => t.id == targetId)
+        var target = await context.Targets.FirstOrDefaultAsync(t => t.id == targetId, cancellationToken)
             ?? throw new InvalidOperationException("Target tabungan tidak ditemukan.");
 
         if (target.currentAmount <= 0)
@@ -267,7 +338,7 @@ public sealed class Service
             throw new InvalidOperationException(
                 $"Nominal penarikan melebihi saldo tabungan target ({target.currentAmount:N0}).");
 
-        var targetWallet = context.Wallets.FirstOrDefault(w => w.id == target.walletId && w.type == "target")
+        var targetWallet = await context.Wallets.FirstOrDefaultAsync(w => w.id == target.walletId && w.type == "target", cancellationToken)
             ?? throw new InvalidOperationException("Wallet target pada target ini tidak valid.");
 
         var transaction = new Transactions
@@ -285,22 +356,23 @@ public sealed class Service
         transWallet.balance += amount;
         targetWallet.balance -= amount;
 
+        var wasComplete = target.status == "complete" || target.currentAmount >= target.targetAmount;
         target.currentAmount -= amount;
-        target.status = target.currentAmount >= target.targetAmount ? "complete" : "active";
+        target.status = wasComplete ? "complete" : (target.currentAmount >= target.targetAmount ? "complete" : "active");
 
-        context.SaveChanges();
-        tx.Commit();
+        await context.SaveChangesAsync(cancellationToken);
+        await tx.CommitAsync(cancellationToken);
     }
 
-    public void CreateTarget(string name, decimal targetAmount, DateTime? finishAt = null)
+    public async Task CreateTargetAsync(string name, decimal targetAmount, DateTime? finishAt = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Nama target wajib diisi.");
         if (targetAmount <= 0)
             throw new ArgumentOutOfRangeException(nameof(targetAmount), "Nominal target harus lebih besar dari nol.");
 
-        using var context = Db.CreateContext();
-        var targetWallet = context.Wallets.FirstOrDefault(w => w.type == "target")
+        await using var context = CreateContext();
+        var targetWallet = await context.Wallets.FirstOrDefaultAsync(w => w.type == "target", cancellationToken)
             ?? throw new InvalidOperationException("Dompet Tabungan tidak ditemukan.");
 
         var now = DateTime.UtcNow;
@@ -311,35 +383,49 @@ public sealed class Service
             targetAmount = targetAmount,
             currentAmount = 0m,
             createdAt = now,
-            finishedAt = finishAt.HasValue ? finishAt.Value.ToUniversalTime() : now.AddMonths(1),
+            finishedAt = finishAt.HasValue ? DateTime.SpecifyKind(finishAt.Value, DateTimeKind.Utc) : now.AddMonths(1),
             status = "active"
         };
 
         context.Targets.Add(target);
-        context.SaveChanges();
+        await context.SaveChangesAsync(cancellationToken);
     }
 
-    public void UpdateTarget(int targetId, string name, decimal targetAmount, DateTime? finishAt = null)
+    public async Task UpdateTargetAsync(int targetId, string name, decimal targetAmount, DateTime? finishAt = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Nama target wajib diisi.");
         if (targetAmount <= 0)
             throw new ArgumentOutOfRangeException(nameof(targetAmount), "Nominal target harus lebih besar dari nol.");
 
-        using var context = Db.CreateContext();
-        var target = context.Targets.FirstOrDefault(t => t.id == targetId)
+        await using var context = CreateContext();
+        var target = await context.Targets.FirstOrDefaultAsync(t => t.id == targetId, cancellationToken)
             ?? throw new InvalidOperationException("Target tabungan tidak ditemukan.");
 
         target.name = name.Trim();
         target.targetAmount = targetAmount;
         if (finishAt.HasValue)
         {
-            target.finishedAt = finishAt.Value.ToUniversalTime();
+            target.finishedAt = DateTime.SpecifyKind(finishAt.Value, DateTimeKind.Utc);
         }
         target.status = target.currentAmount >= targetAmount ? "complete" : "active";
 
-        context.SaveChanges();
+        await context.SaveChangesAsync(cancellationToken);
     }
+
+    // Synchronous wrappers for backward compatibility
+    public List<Wallet> GetWallets() => GetWalletsAsync().GetAwaiter().GetResult();
+    public List<Target> GetTargets() => GetTargetsAsync().GetAwaiter().GetResult();
+    public List<TransactionsRecord> GetTransactions(int limit = 250) => GetTransactionsAsync(limit).GetAwaiter().GetResult();
+    public List<TransactionsRecord> GetFilteredTransactions(string? jenis = null, string? dompet = null, string? periode = null, int limit = 250)
+        => GetFilteredTransactionsAsync(jenis, dompet, periode, limit).GetAwaiter().GetResult();
+    public DashboardStats GetStats() => GetStatsAsync().GetAwaiter().GetResult();
+    public void AddIncome(decimal amount, string? note, int? targetId = null) => AddIncomeAsync(amount, note, targetId).GetAwaiter().GetResult();
+    public void AddExpense(decimal amount, string? note) => AddExpenseAsync(amount, note).GetAwaiter().GetResult();
+    public void DepositToTarget(int targetId, decimal amount, string? note) => DepositToTargetAsync(targetId, amount, note).GetAwaiter().GetResult();
+    public void WithdrawTarget(int targetId, decimal? amountToWithdraw = null) => WithdrawTargetAsync(targetId, amountToWithdraw).GetAwaiter().GetResult();
+    public void CreateTarget(string name, decimal targetAmount, DateTime? finishAt = null) => CreateTargetAsync(name, targetAmount, finishAt).GetAwaiter().GetResult();
+    public void UpdateTarget(int targetId, string name, decimal targetAmount, DateTime? finishAt = null) => UpdateTargetAsync(targetId, name, targetAmount, finishAt).GetAwaiter().GetResult();
 
     private static void ValidateAmount(decimal amount)
     {
@@ -352,4 +438,3 @@ public sealed class Service
     private static string? NormalizeNote(string? note)
         => string.IsNullOrWhiteSpace(note) ? null : note.Trim();
 }
-

@@ -1,5 +1,3 @@
-﻿using Uangku.Models;
-
 namespace UangKu.Models;
 
 public sealed class Transactions

@@ -1,9 +1,11 @@
+using UangKu.Services;
 using UangKu.Themes;
 
 namespace UangKu.Forms;
 
 public partial class MainForm : Form
 {
+    private readonly Service _service = new();
     private UserControl[] pages = [];
     private Button[] menu = [];
     private Font activeMenuFont = null!;
@@ -28,6 +30,9 @@ public partial class MainForm : Form
         Navigate(btnRiwayat, pageRiwayat);
         Navigate(btnTarget, pageTarget);
         Navigate(btnProgress, pageProgress);
+        pageDashboard.Service = _service;
+        pagePemasukan.Service = _service;
+        pagePemasukan.IncomeSaved += (_, _) => _ = pageDashboard.UpdateStatsAsync();
         pageDashboard.RiwayatRequested += (_, _) => ShowPage(pageRiwayat);
         pagePemasukan.DashboardRequested += (_, _) => ShowPage(pageDashboard);
         pagePengeluaran.DashboardRequested += (_, _) => ShowPage(pageDashboard);
@@ -61,5 +66,14 @@ public partial class MainForm : Form
         }
         contentHost.ResumeLayout(true);
         page.SelectNextControl(null, true, true, true, false);
+
+        if (page == pageDashboard)
+        {
+            _ = pageDashboard.UpdateStatsAsync();
+        }
+        else if (page == pagePemasukan)
+        {
+            _ = pagePemasukan.LoadTargetsAsync();
+        }
     }
 }

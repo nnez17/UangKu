@@ -18,7 +18,7 @@ partial class DashboardControl
     private Label cardSaldoDashboardAmount = null!;
     private Label lblTransaksiTerbaru = null!;
     private Button btnLihatSemua = null!;
-    private DataGridView gridDashboard = null!;
+    private DataGridView dgvDashboard = null!;
     private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5 = null!;
     private DataGridViewTextBoxColumn dataGridViewTextBoxColumn6 = null!;
     private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7 = null!;
@@ -53,7 +53,7 @@ partial class DashboardControl
         cardSaldoDashboardAmount = new Label();
         lblTransaksiTerbaru = new Label();
         btnLihatSemua = new Button();
-        gridDashboard = new DataGridView();
+        dgvDashboard = new DataGridView();
         dataGridViewTextBoxColumn5 = new DataGridViewTextBoxColumn();
         dataGridViewTextBoxColumn6 = new DataGridViewTextBoxColumn();
         dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
@@ -66,13 +66,13 @@ partial class DashboardControl
         cardPemasukan.SuspendLayout();
         cardPengeluaran.SuspendLayout();
         cardSaldoDashboard.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)gridDashboard).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)dgvDashboard).BeginInit();
         pnlProgressDashboard.SuspendLayout();
         progressDashboardTrack.SuspendLayout();
         SuspendLayout();
-        //
+        // 
         // lblEmptyDashboardTransactions
-        //
+        // 
         lblEmptyDashboardTransactions.BackColor = Color.White;
         lblEmptyDashboardTransactions.Font = new Font("Segoe UI", 10F);
         lblEmptyDashboardTransactions.ForeColor = Color.FromArgb(112, 139, 132);
@@ -82,9 +82,9 @@ partial class DashboardControl
         lblEmptyDashboardTransactions.TabIndex = 0;
         lblEmptyDashboardTransactions.Text = "Belum ada transaksi.";
         lblEmptyDashboardTransactions.TextAlign = ContentAlignment.MiddleCenter;
-        //
+        // 
         // lblTitleDashboard
-        //
+        // 
         lblTitleDashboard.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
         lblTitleDashboard.ForeColor = Color.FromArgb(38, 73, 68);
         lblTitleDashboard.Location = new Point(40, 35);
@@ -93,9 +93,9 @@ partial class DashboardControl
         lblTitleDashboard.TabIndex = 0;
         lblTitleDashboard.Text = "Dashboard";
         lblTitleDashboard.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // lblRingkasan
-        //
+        // 
         lblRingkasan.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
         lblRingkasan.ForeColor = Color.FromArgb(38, 73, 68);
         lblRingkasan.Location = new Point(40, 88);
@@ -104,21 +104,20 @@ partial class DashboardControl
         lblRingkasan.TabIndex = 1;
         lblRingkasan.Text = "Ringkasan Keuangan";
         lblRingkasan.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // cardPemasukan
-        //
+        // 
         cardPemasukan.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         cardPemasukan.BackColor = Color.FromArgb(234, 246, 238);
-        cardPemasukan.BorderStyle = BorderStyle.FixedSingle;
         cardPemasukan.Controls.Add(cardPemasukanTitle);
         cardPemasukan.Controls.Add(cardPemasukanAmount);
         cardPemasukan.Location = new Point(40, 126);
         cardPemasukan.Name = "cardPemasukan";
         cardPemasukan.Size = new Size(390, 118);
         cardPemasukan.TabIndex = 2;
-        //
+        // 
         // cardPemasukanTitle
-        //
+        // 
         cardPemasukanTitle.Font = new Font("Segoe UI", 8F);
         cardPemasukanTitle.ForeColor = Color.FromArgb(38, 73, 68);
         cardPemasukanTitle.Location = new Point(20, 12);
@@ -127,9 +126,9 @@ partial class DashboardControl
         cardPemasukanTitle.TabIndex = 0;
         cardPemasukanTitle.Text = "TOTAL PEMASUKAN";
         cardPemasukanTitle.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // cardPemasukanAmount
-        //
+        // 
         cardPemasukanAmount.Font = new Font("Segoe UI", 19F, FontStyle.Bold);
         cardPemasukanAmount.ForeColor = Color.FromArgb(38, 73, 68);
         cardPemasukanAmount.Location = new Point(20, 40);
@@ -138,21 +137,20 @@ partial class DashboardControl
         cardPemasukanAmount.TabIndex = 1;
         cardPemasukanAmount.Text = "Rp. 0";
         cardPemasukanAmount.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // cardPengeluaran
-        //
+        // 
         cardPengeluaran.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         cardPengeluaran.BackColor = Color.FromArgb(255, 243, 233);
-        cardPengeluaran.BorderStyle = BorderStyle.FixedSingle;
         cardPengeluaran.Controls.Add(cardPengeluaranTitle);
         cardPengeluaran.Controls.Add(cardPengeluaranAmount);
         cardPengeluaran.Location = new Point(450, 126);
         cardPengeluaran.Name = "cardPengeluaran";
         cardPengeluaran.Size = new Size(390, 118);
         cardPengeluaran.TabIndex = 3;
-        //
+        // 
         // cardPengeluaranTitle
-        //
+        // 
         cardPengeluaranTitle.Font = new Font("Segoe UI", 8F);
         cardPengeluaranTitle.ForeColor = Color.FromArgb(38, 73, 68);
         cardPengeluaranTitle.Location = new Point(20, 12);
@@ -161,9 +159,9 @@ partial class DashboardControl
         cardPengeluaranTitle.TabIndex = 0;
         cardPengeluaranTitle.Text = "TOTAL PENGELUARAN";
         cardPengeluaranTitle.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // cardPengeluaranAmount
-        //
+        // 
         cardPengeluaranAmount.Font = new Font("Segoe UI", 19F, FontStyle.Bold);
         cardPengeluaranAmount.ForeColor = Color.FromArgb(38, 73, 68);
         cardPengeluaranAmount.Location = new Point(20, 40);
@@ -172,21 +170,20 @@ partial class DashboardControl
         cardPengeluaranAmount.TabIndex = 1;
         cardPengeluaranAmount.Text = "Rp. 0";
         cardPengeluaranAmount.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // cardSaldoDashboard
-        //
+        // 
         cardSaldoDashboard.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         cardSaldoDashboard.BackColor = Color.FromArgb(21, 125, 104);
-        cardSaldoDashboard.BorderStyle = BorderStyle.FixedSingle;
         cardSaldoDashboard.Controls.Add(cardSaldoDashboardTitle);
         cardSaldoDashboard.Controls.Add(cardSaldoDashboardAmount);
         cardSaldoDashboard.Location = new Point(40, 262);
         cardSaldoDashboard.Name = "cardSaldoDashboard";
         cardSaldoDashboard.Size = new Size(800, 118);
         cardSaldoDashboard.TabIndex = 4;
-        //
+        // 
         // cardSaldoDashboardTitle
-        //
+        // 
         cardSaldoDashboardTitle.Font = new Font("Segoe UI", 8F);
         cardSaldoDashboardTitle.ForeColor = Color.White;
         cardSaldoDashboardTitle.Location = new Point(20, 12);
@@ -195,9 +192,9 @@ partial class DashboardControl
         cardSaldoDashboardTitle.TabIndex = 0;
         cardSaldoDashboardTitle.Text = "SALDO SAAT INI";
         cardSaldoDashboardTitle.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // cardSaldoDashboardAmount
-        //
+        // 
         cardSaldoDashboardAmount.Font = new Font("Segoe UI", 19F, FontStyle.Bold);
         cardSaldoDashboardAmount.ForeColor = Color.White;
         cardSaldoDashboardAmount.Location = new Point(20, 40);
@@ -206,9 +203,9 @@ partial class DashboardControl
         cardSaldoDashboardAmount.TabIndex = 1;
         cardSaldoDashboardAmount.Text = "Rp. 0";
         cardSaldoDashboardAmount.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // lblTransaksiTerbaru
-        //
+        // 
         lblTransaksiTerbaru.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
         lblTransaksiTerbaru.ForeColor = Color.FromArgb(38, 73, 68);
         lblTransaksiTerbaru.Location = new Point(40, 402);
@@ -217,9 +214,9 @@ partial class DashboardControl
         lblTransaksiTerbaru.TabIndex = 5;
         lblTransaksiTerbaru.Text = "Transaksi Terbaru";
         lblTransaksiTerbaru.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // btnLihatSemua
-        //
+        // 
         btnLihatSemua.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         btnLihatSemua.BackColor = Color.White;
         btnLihatSemua.Cursor = Cursors.Hand;
@@ -232,17 +229,17 @@ partial class DashboardControl
         btnLihatSemua.TabIndex = 45;
         btnLihatSemua.Text = "Lihat Semua";
         btnLihatSemua.UseVisualStyleBackColor = false;
-        //
-        // gridDashboard
-        //
-        gridDashboard.AccessibleName = "";
-        gridDashboard.AllowUserToAddRows = false;
-        gridDashboard.AllowUserToDeleteRows = false;
-        gridDashboard.AllowUserToResizeRows = false;
-        gridDashboard.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        gridDashboard.BackgroundColor = Color.White;
-        gridDashboard.CellBorderStyle = DataGridViewCellBorderStyle.None;
-        gridDashboard.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+        // 
+        // dgvDashboard
+        // 
+        dgvDashboard.AccessibleName = "";
+        dgvDashboard.AllowUserToAddRows = false;
+        dgvDashboard.AllowUserToDeleteRows = false;
+        dgvDashboard.AllowUserToResizeRows = false;
+        dgvDashboard.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvDashboard.BackgroundColor = Color.White;
+        dgvDashboard.CellBorderStyle = DataGridViewCellBorderStyle.None;
+        dgvDashboard.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
         dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
         dataGridViewCellStyle1.BackColor = Color.FromArgb(240, 247, 244);
         dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F);
@@ -250,9 +247,9 @@ partial class DashboardControl
         dataGridViewCellStyle1.SelectionBackColor = Color.FromArgb(240, 247, 244);
         dataGridViewCellStyle1.SelectionForeColor = Color.FromArgb(38, 73, 68);
         dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
-        gridDashboard.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-        gridDashboard.ColumnHeadersHeight = 42;
-        gridDashboard.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn5, dataGridViewTextBoxColumn6, dataGridViewTextBoxColumn7, dataGridViewTextBoxColumn8 });
+        dgvDashboard.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+        dgvDashboard.ColumnHeadersHeight = 42;
+        dgvDashboard.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn5, dataGridViewTextBoxColumn6, dataGridViewTextBoxColumn7, dataGridViewTextBoxColumn8 });
         dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
         dataGridViewCellStyle2.BackColor = SystemColors.Window;
         dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
@@ -261,49 +258,49 @@ partial class DashboardControl
         dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(197, 232, 218);
         dataGridViewCellStyle2.SelectionForeColor = Color.FromArgb(38, 73, 68);
         dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
-        gridDashboard.DefaultCellStyle = dataGridViewCellStyle2;
-        gridDashboard.EnableHeadersVisualStyles = false;
-        gridDashboard.Location = new Point(40, 456);
-        gridDashboard.MultiSelect = false;
-        gridDashboard.Name = "gridDashboard";
-        gridDashboard.ReadOnly = true;
-        gridDashboard.RowHeadersVisible = false;
-        gridDashboard.RowHeadersWidth = 47;
-        gridDashboard.RowTemplate.Height = 46;
-        gridDashboard.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        gridDashboard.Size = new Size(800, 210);
-        gridDashboard.TabIndex = 46;
-        //
+        dgvDashboard.DefaultCellStyle = dataGridViewCellStyle2;
+        dgvDashboard.EnableHeadersVisualStyles = false;
+        dgvDashboard.Location = new Point(40, 456);
+        dgvDashboard.MultiSelect = false;
+        dgvDashboard.Name = "dgvDashboard";
+        dgvDashboard.ReadOnly = true;
+        dgvDashboard.RowHeadersVisible = false;
+        dgvDashboard.RowHeadersWidth = 47;
+        dgvDashboard.RowTemplate.Height = 46;
+        dgvDashboard.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvDashboard.Size = new Size(800, 210);
+        dgvDashboard.TabIndex = 46;
+        // 
         // dataGridViewTextBoxColumn5
-        //
+        // 
         dataGridViewTextBoxColumn5.HeaderText = "Tanggal";
         dataGridViewTextBoxColumn5.MinimumWidth = 6;
         dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
         dataGridViewTextBoxColumn5.ReadOnly = true;
-        //
+        // 
         // dataGridViewTextBoxColumn6
-        //
+        // 
         dataGridViewTextBoxColumn6.HeaderText = "Jenis";
         dataGridViewTextBoxColumn6.MinimumWidth = 6;
         dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
         dataGridViewTextBoxColumn6.ReadOnly = true;
-        //
+        // 
         // dataGridViewTextBoxColumn7
-        //
+        // 
         dataGridViewTextBoxColumn7.HeaderText = "Catatan";
         dataGridViewTextBoxColumn7.MinimumWidth = 6;
         dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
         dataGridViewTextBoxColumn7.ReadOnly = true;
-        //
+        // 
         // dataGridViewTextBoxColumn8
-        //
+        // 
         dataGridViewTextBoxColumn8.HeaderText = "Jumlah";
         dataGridViewTextBoxColumn8.MinimumWidth = 6;
         dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
         dataGridViewTextBoxColumn8.ReadOnly = true;
-        //
+        // 
         // lblTargetDashboard
-        //
+        // 
         lblTargetDashboard.Font = new Font("Segoe UI", 9F);
         lblTargetDashboard.ForeColor = Color.FromArgb(38, 73, 68);
         lblTargetDashboard.Location = new Point(40, 688);
@@ -312,9 +309,9 @@ partial class DashboardControl
         lblTargetDashboard.TabIndex = 47;
         lblTargetDashboard.Text = "Belum ada target keuangan.";
         lblTargetDashboard.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // pnlProgressDashboard
-        //
+        // 
         pnlProgressDashboard.Controls.Add(progressDashboardTrack);
         pnlProgressDashboard.Controls.Add(progressDashboardPercent);
         pnlProgressDashboard.Location = new Point(40, 730);
@@ -322,9 +319,9 @@ partial class DashboardControl
         pnlProgressDashboard.Size = new Size(800, 40);
         pnlProgressDashboard.TabIndex = 48;
         pnlProgressDashboard.Visible = false;
-        //
+        // 
         // progressDashboardTrack
-        //
+        // 
         progressDashboardTrack.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         progressDashboardTrack.BackColor = Color.FromArgb(201, 221, 213);
         progressDashboardTrack.Controls.Add(progressDashboardFill);
@@ -332,17 +329,17 @@ partial class DashboardControl
         progressDashboardTrack.Name = "progressDashboardTrack";
         progressDashboardTrack.Size = new Size(688, 9);
         progressDashboardTrack.TabIndex = 0;
-        //
+        // 
         // progressDashboardFill
-        //
+        // 
         progressDashboardFill.BackColor = Color.FromArgb(91, 128, 115);
         progressDashboardFill.Location = new Point(0, 0);
         progressDashboardFill.Name = "progressDashboardFill";
         progressDashboardFill.Size = new Size(0, 9);
         progressDashboardFill.TabIndex = 0;
-        //
+        // 
         // progressDashboardPercent
-        //
+        // 
         progressDashboardPercent.Font = new Font("Segoe UI", 8F);
         progressDashboardPercent.ForeColor = Color.FromArgb(38, 73, 68);
         progressDashboardPercent.Location = new Point(726, 1);
@@ -351,12 +348,11 @@ partial class DashboardControl
         progressDashboardPercent.TabIndex = 1;
         progressDashboardPercent.Text = "0%";
         progressDashboardPercent.TextAlign = ContentAlignment.MiddleLeft;
-        //
+        // 
         // DashboardControl
-        //
+        // 
         AutoScaleDimensions = new SizeF(8F, 19F);
         AutoScaleMode = AutoScaleMode.Font;
-        Font = new Font("Segoe UI", 9F);
         AutoScroll = true;
         BackColor = Color.White;
         Controls.Add(lblEmptyDashboardTransactions);
@@ -367,15 +363,16 @@ partial class DashboardControl
         Controls.Add(cardSaldoDashboard);
         Controls.Add(lblTransaksiTerbaru);
         Controls.Add(btnLihatSemua);
-        Controls.Add(gridDashboard);
+        Controls.Add(dgvDashboard);
         Controls.Add(lblTargetDashboard);
         Controls.Add(pnlProgressDashboard);
+        Font = new Font("Segoe UI", 9F);
         Name = "DashboardControl";
         Size = new Size(880, 806);
         cardPemasukan.ResumeLayout(false);
         cardPengeluaran.ResumeLayout(false);
         cardSaldoDashboard.ResumeLayout(false);
-        ((System.ComponentModel.ISupportInitialize)gridDashboard).EndInit();
+        ((System.ComponentModel.ISupportInitialize)dgvDashboard).EndInit();
         pnlProgressDashboard.ResumeLayout(false);
         progressDashboardTrack.ResumeLayout(false);
         ResumeLayout(false);

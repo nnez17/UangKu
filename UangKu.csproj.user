@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Compile Update="controls\ambilUangControl.cs">
+    <Compile Update="Controls\AmbilUangControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\dashboardControl.cs">
+    <Compile Update="Controls\DashboardControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\detailTargetControl.cs">
+    <Compile Update="Controls\DetailTargetControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\editTargetControl.cs">
+    <Compile Update="Controls\EditTargetControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\pemasukanControl.cs">
+    <Compile Update="Controls\PemasukanControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\pengeluaranControl.cs">
+    <Compile Update="Controls\PengeluaranControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\progressControl.cs">
+    <Compile Update="Controls\ProgressControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\riwayatControl.cs">
+    <Compile Update="Controls\RiwayatControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\saldoControl.cs">
+    <Compile Update="Controls\SaldoControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\tambahTargetControl.cs">
+    <Compile Update="Controls\TambahTargetControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="controls\targetControl.cs">
+    <Compile Update="Controls\TargetControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="forms\mainForm.cs">
+    <Compile Update="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace Uangku.Models;
+namespace UangKu.Models;
 
 public sealed class TransactionsRecord
 {
